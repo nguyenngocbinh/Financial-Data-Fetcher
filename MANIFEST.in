@@ -1,0 +1,39 @@
+# Include documentation files
+include README.md
+include COMPLETE_GUIDE.md
+include PRIVATE_TO_PUBLIC_GUIDE.md
+include LICENSE
+
+# Include configuration files
+include .env.example
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# Include workflows
+recursive-include .github/workflows *.yml
+
+# Include docs
+recursive-include docs *.html *.css *.js *.md
+
+# Exclude development files
+exclude .gitignore
+exclude run.bat
+exclude test_all.py
+exclude example.py
+exclude fetch_data_github.py
+exclude generate_html_report.py
+
+# Exclude build artifacts
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude *.egg-info
+global-exclude build
+global-exclude dist
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude .mypy_cache
+global-exclude .tox
