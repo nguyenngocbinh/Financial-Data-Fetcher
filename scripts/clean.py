@@ -28,7 +28,7 @@ def clean_build():
     """Remove build artifacts"""
     print("Cleaning build artifacts...")
     
-    build_dirs = ['build', 'dist', '*.egg-info']
+    build_dirs = ['build', 'dist', '*.egg-info', 'src/financial_data_fetcher.egg-info']
     for pattern in build_dirs:
         for path in glob.glob(pattern):
             if os.path.isdir(path):
@@ -69,7 +69,8 @@ def clean_temp_data():
         'data/*.csv',
         'data/*.db',
         '*.tmp',
-        '*.temp'
+        '*.temp',
+        'demo_financial_data.json'
     ]
     
     for pattern in temp_patterns:
