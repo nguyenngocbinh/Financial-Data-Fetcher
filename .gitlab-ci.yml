@@ -10,15 +10,15 @@ deploy_main_to_github_dev:
     - git config --global user.name "Nguyen Ngoc Binh"
   script:
     - echo "Cloning repository..."
-    - git clone https://oauth2:$GITLAB_PERSONAL_ACCESS_TOKEN@gitlab.com/nguyenngocbinh/quantum-mathematics.git || (echo "Clone failed"; exit 1)
-    - cd quantum-mathematics
+    - git clone https://oauth2:$GITLAB_PERSONAL_ACCESS_TOKEN@gitlab.com/nguyenngocbinh/Financial-Data-Fetcher.git || (echo "Clone failed"; exit 1)
+    - cd Financial-Data-Fetcher
     
     # Ensure we're on the main branch
     - git checkout main || (echo "Failed to checkout main branch"; exit 1)
     
     # Add GitHub as a remote repository
     - echo "Adding GitHub remote..."
-    - git remote add github https://$GITHUB_TOKEN@github.com/nguyenngocbinh/quantum-mathematics.git
+    - git remote add github https://$GITHUB_TOKEN@github.com/nguyenngocbinh/Financial-Data-Fetcher.git
     
     # Fetch from GitHub to update remote refs
     - git fetch github
