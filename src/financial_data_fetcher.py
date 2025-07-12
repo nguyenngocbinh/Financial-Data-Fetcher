@@ -14,9 +14,11 @@ class FinancialDataFetcher:
     """
     
     def __init__(self):
-        self.symbols = config.SYMBOLS
+        self.symbols = config.YFINANCE_SYMBOLS
         self.fred_series = config.FRED_SERIES
         self.data_dir = config.DATA_DIR
+        self.data_settings = config.DATA_SETTINGS
+        self.error_handling = config.ERROR_HANDLING
         self._ensure_data_dir()
     
     def _ensure_data_dir(self):
@@ -24,9 +26,9 @@ class FinancialDataFetcher:
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
     
-    def fetch_yahoo_finance_data(self, symbol: str, period: str = "1d") -> Dict[str, Any]:
+    def fetch_yahoo_finance_data(self, symbol: str, period: str = None) -> Dict[str, Any]:
         """
-        Lấy dữ liệu từ Yahoo Finance
+        Lấy dữ liệu từ Yahoo Finance sử dụng thư viện yfinance
         
         Args:
             symbol: Mã chứng khoán (VD: "GC=F" cho vàng)
@@ -36,8 +38,19 @@ class FinancialDataFetcher:
             Dict chứa thông tin giá và metadata
         """
         try:
+            # Sử dụng settings từ config
+            period = period or self.data_settings.get("period", "1y")
+            interval = self.data_settings.get("interval", "1d")
+            auto_adjust = self.data_settings.get("auto_adjust", True)
+            prepost = self.data_settings.get("prepost", True)
+            
             ticker = yf.Ticker(symbol)
-            hist = ticker.history(period=period)
+            hist = ticker.history(
+                period=period,
+                interval=interval,
+                auto_adjust=auto_adjust,
+                prepost=prepost
+            )
             
             if hist.empty:
                 return {"error": f"No data found for {symbol}"}
@@ -57,13 +70,12 @@ class FinancialDataFetcher:
                 "timestamp": datetime.now().isoformat(),
                 "historical_data": hist.to_dict('records')
             }
-            
         except Exception as e:
             return {"error": f"Error fetching data for {symbol}: {str(e)}"}
     
     def fetch_fred_data(self, series_id: str, limit: int = 1) -> Dict[str, Any]:
         """
-        Lấy dữ liệu từ FRED (Federal Reserve Economic Data)
+        Lấy dữ liệu từ FRED (Federal Reserve Economic Data) sử dụng thư viện fredapi
         
         Args:
             series_id: ID của series dữ liệu
@@ -73,43 +85,49 @@ class FinancialDataFetcher:
             Dict chứa dữ liệu từ FRED
         """
         try:
-            if not config.FRED_API_KEY or config.FRED_API_KEY == "your_fred_api_key":
-                return {"error": "FRED API key not configured"}
-            
-            url = f"{config.FRED_BASE_URL}"
-            params = {
-                "series_id": series_id,
-                "api_key": config.FRED_API_KEY,
-                "file_type": "json",
-                "limit": limit,
-                "sort_order": "desc"
-            }
-            
-            response = requests.get(url, params=params)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            if 'observations' in data and data['observations']:
-                latest = data['observations'][0]
-                return {
-                    "series_id": series_id,
-                    "value": float(latest['value']) if latest['value'] != '.' else None,
-                    "date": latest['date'],
-                    "timestamp": datetime.now().isoformat()
-                }
+            # Sử dụng fredapi nếu có API key
+            if config.FRED_API_KEY:
+                try:
+                    from fredapi import Fred
+                    fred = Fred(api_key=config.FRED_API_KEY)
+                    data = fred.get_series(series_id, limit=limit)
+                    
+                    if data.empty:
+                        return {"error": f"No data found for series {series_id}"}
+                    
+                    latest_value = data.iloc[-1]
+                    latest_date = data.index[-1]
+                    
+                    return {
+                        "series_id": series_id,
+                        "value": float(latest_value),
+                        "date": latest_date.strftime('%Y-%m-%d'),
+                        "timestamp": datetime.now().isoformat(),
+                        "source": "FRED API"
+                    }
+                except ImportError:
+                    return {"error": "fredapi library not installed. Install with: pip install fredapi"}
             else:
-                return {"error": f"No data found for series {series_id}"}
-                
+                return {"error": "FRED API key not configured"}
         except Exception as e:
             return {"error": f"Error fetching FRED data for {series_id}: {str(e)}"}
     
     def fetch_vn_index_data(self) -> Dict[str, Any]:
         """
-        Lấy dữ liệu VN Index
-        Lưu ý: Đây là ví dụ cơ bản, có thể cần điều chỉnh tùy theo API thực tế
+        Lấy dữ liệu VN Index sử dụng yfinance hoặc nguồn khác
         """
         try:
+            # Thử lấy từ yfinance trước
+            vn_symbols = ["^VNI", "^VN30"]
+            for symbol in vn_symbols:
+                data = self.fetch_yahoo_finance_data(symbol)
+                if "error" not in data:
+                    return data
+            
+            # Nếu không có dữ liệu từ Yahoo Finance, trả về lỗi
+            return {"error": "No Vietnamese market data available"}
+        except Exception as e:
+            return {"error": f"Error fetching VN Index data: {str(e)}"}
             # Sử dụng Yahoo Finance cho VN Index
             return self.fetch_yahoo_finance_data("^VNI")
             

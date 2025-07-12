@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick start script for Financial Data Fetcher
+Quick start script for Financial Data Fetcher - Updated Version
 """
 
 import sys
@@ -10,23 +10,34 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from financial_data_fetcher import FinancialDataFetcher
+import config
 
 def main():
-    """Quick demo"""
-    print("🚀 Financial Data Fetcher - Quick Start")
+    """Quick demo using updated configuration"""
+    print("🚀 Financial Data Fetcher - Quick Start (Updated)")
     print("=" * 50)
     
     fetcher = FinancialDataFetcher()
     
-    # Quick test
+    # Quick test with new config
     print("\n📊 Fetching sample data...")
     try:
-        data = fetcher.fetch_precious_metals_data()
-        if data:
-            print("✅ Data fetched successfully!")
-            print(f"📈 Sample: {list(data.keys())[:3]}")
+        # Test gold price using new config
+        gold_data = fetcher.fetch_yahoo_finance_data(config.YFINANCE_SYMBOLS["gold"])
+        
+        if "error" not in gold_data:
+            print("✅ Gold data fetched successfully!")
+            print(f"� Gold Price: ${gold_data['current_price']:.2f}")
+            print(f"📈 Change: {gold_data['change_percent']:+.2f}%")
         else:
-            print("⚠️ No data available")
+            print(f"⚠️ Error: {gold_data['error']}")
+            
+        # Test another symbol
+        btc_data = fetcher.fetch_yahoo_finance_data(config.YFINANCE_SYMBOLS["bitcoin"])
+        if "error" not in btc_data:
+            print(f"₿ Bitcoin Price: ${btc_data['current_price']:.2f}")
+            print(f"📈 Change: {btc_data['change_percent']:+.2f}%")
+        
     except Exception as e:
         print(f"❌ Error: {e}")
     

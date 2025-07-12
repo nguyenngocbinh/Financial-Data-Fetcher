@@ -291,16 +291,16 @@ class FinancialDashboard:
             try:
                 # Lấy dữ liệu lịch sử cho asset được chọn
                 symbol_map = {
-                    'gold': config.SYMBOLS['gold'],
-                    'silver': config.SYMBOLS['silver'],
-                    'dow_jones': config.SYMBOLS['dow_jones'],
-                    'vn_index': config.SYMBOLS['vn_index'],
-                    'us_10y_bond': config.SYMBOLS['us_10y_bond'],
-                    'usd_vnd': config.SYMBOLS['usd_vnd'],
-                    'eur_usd': config.SYMBOLS['eur_usd']
+                    'gold': config.YFINANCE_SYMBOLS['gold'],
+                    'silver': config.YFINANCE_SYMBOLS['silver'],
+                    'dow_jones': config.YFINANCE_SYMBOLS['dow_jones'],
+                    'vn_index': config.VN_SYMBOLS.get('vn_index', '^VNI'),
+                    'us_10y_bond': config.YFINANCE_SYMBOLS['us_10y_bond'],
+                    'usd_vnd': config.YFINANCE_SYMBOLS['usd_vnd'],
+                    'eur_usd': config.YFINANCE_SYMBOLS['eur_usd']
                 }
                 
-                symbol = symbol_map.get(selected_asset, config.SYMBOLS['gold'])
+                symbol = symbol_map.get(selected_asset, config.YFINANCE_SYMBOLS['gold'])
                 hist_data = self.fetcher.fetch_yahoo_finance_data(symbol, period="1mo")
                 
                 if 'historical_data' in hist_data and hist_data['historical_data']:
