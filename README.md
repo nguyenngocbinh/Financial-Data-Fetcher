@@ -1,6 +1,6 @@
 # Financial Data Fetcher - GitHub Pages
 
-🌟 **Live Demo**: [https://YOUR-USERNAME.github.io/financial-data-fetcher/](https://YOUR-USERNAME.github.io/financial-data-fetcher/)
+🌟 **Live Demo**: [https://nguyenngocbinh.github.io/financial-data-fetcher/](https://nguyenngocbinh.github.io/financial-data-fetcher/)
 
 ## Overview
 
